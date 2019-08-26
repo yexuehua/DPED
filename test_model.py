@@ -57,11 +57,11 @@ IMAGE_HEIGHT, IMAGE_WIDTH, IMAGE_SIZE = utils.get_specified_res(res_sizes, phone
 config = tf.ConfigProto(device_count={'GPU': 0}) if use_gpu == "false" else None
 
 # create placeholders for input images
-x_ = tf.placeholder(tf.float32, [None, IMAGE_SIZE])
-x_image = tf.reshape(x_, [-1, IMAGE_HEIGHT, IMAGE_WIDTH, 3])
-
+x_ = tf.placeholder(tf.float32,[None,None,3])
+#x_image = tf.reshape(x_, [-1, xsize[0], xsize[1], 3])
+x_imge = tf.expand_dims(x_,axis=0)
 # generate enhanced image
-enhanced = resnet(x_image)
+enhanced = resnet(x_imge)
 
 with tf.Session(config=config) as sess:
 
@@ -142,12 +142,12 @@ with tf.Session(config=config) as sess:
                 #image_crop = utils.extract_crop(image, resolution, phone, res_sizes)
                 #print(image_crop.shape)
 
-                image_crop_2d = np.reshape(image, [1, IMAGE_SIZE])
+                #image_crop_2d = np.reshape(image, [1, high,wid,3])
                 #print(image_crop_2d.shape)
 
                 # get enhanced image
-
-                enhanced_2d = sess.run(enhanced, feed_dict={x_: image_crop_2d})
+                print(image.shape)
+                enhanced_2d = sess.run(enhanced, feed_dict={x_: image})
                 enhanced_image = np.reshape(enhanced_2d, [high, wid, 3])
                 enhanced_image = enhanced_image[:,:,0]
                 enhanced_image = enhanced_image*255
