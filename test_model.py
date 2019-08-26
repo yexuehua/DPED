@@ -16,6 +16,8 @@ class nomalprocess():
 	# def __init__(self,mins,maxs):
 	# 	#self.mins = mins
 	# 	#self.maxs = maxs
+    #              1 --> 2
+    # (x-min1)(max2-min2)/(max1-min1)+min2
 	def normal(self,pixels):
 		high,wid = pixels.shape
 		self.mins = np.min(pixels)
