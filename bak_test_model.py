@@ -1,7 +1,7 @@
 # python test_model.py model=iphone_orig dped_dir=dped/ test_subset=full iteration=all resolution=orig use_gpu=true
 
 from scipy import misc
-#import cv2
+import cv2
 import numpy as np
 import tensorflow as tf
 from models import resnet
@@ -11,34 +11,13 @@ import sys
 import time
 import pydicom
 
-
-class nomalprocess():
-	# def __init__(self,mins,maxs):
-	# 	#self.mins = mins
-	# 	#self.maxs = maxs
-	def normal(self,pixels):
-		high,wid = pixels.shape
-		self.mins = np.min(pixels)
-		self.maxs = np.max(pixels)
-		for i in range(high):
-			for j in range(wid):
-				pixels[i][j] = int((pixels[i][j]-self.mins)*(255/(self.maxs-self.mins)))
-		return pixels
-	def denomal(self,pixels):
-		high,wid = pixels.shape
-		for i in range(high):
-			for j in range(wid):
-				pixels[i][j] = int(((self.maxs-self.mins)/255)*pixels[i][j]+self.mins)
-		return pixels
-
-
 def normal(pixels):
     high,wid = pixels.shape
-    nmins = np.min(pixels)
-    nmaxs = np.max(pixels)
+    mins = np.min(pixels)
+    maxs = np.max(pixels)
     for i in range(high):
         for j in range(wid):
-            pixels[i][j] = int((pixels[i][j]-nmins)*(255/(nmaxs-nmins)))
+            pixels[i][j] = int((pixels[i][j]-mins)*(255/(maxs-mins)))
     return pixels
 
 time_start = time.time()
@@ -119,53 +98,27 @@ with tf.Session(config=config) as sess:
                 # load training image and crop it if necessary
 
                 print("iteration " + str(i) + ", processing image " + photo)
-                img = pydicom.read_file(test_dir + photo)
-                imge = img.pixel_array
-                print(np.max(imge))
+                # img = pydicom.read_file(test_dir + photo)
+                # imge = img.pixel_array
                 # imge = normal(imge)
-                norpro = nomalprocess()
-                imge = norpro.normal(imge)
-                print(np.min(imge))
-                imge = np.expand_dims(imge, axis=2)
-                imge = np.concatenate((imge, imge, imge), axis=-1)
+                # imge = np.expand_dims(imge, axis=2)
+                # imge = np.concatenate((imge, imge, imge), axis=-1)
                 # image = np.float16(misc.imresize(imge, res_sizes[phone])) / 255
-                # img = misc.imread(test_dir + photo,mode='L')
-                # img = np.expand_dims(img, axis=2)
-                # img = np.concatenate((img, img, img), axis=-1)
-
-                high,wid,_= imge.shape
-                IMAGE_SIZE = high*wid*3
-
-                image = np.float16(imge) / 255
-                #image_crop = utils.extract_crop(image, resolution, phone, res_sizes)
-                #print(image_crop.shape)
-
-                image_crop_2d = np.reshape(image, [1, IMAGE_SIZE])
-                #print(image_crop_2d.shape)
+                image = np.float16(misc.imresize(misc.imread(test_dir + photo), res_sizes[phone])) / 255
+                image_crop = utils.extract_crop(image, resolution, phone, res_sizes)
+                image_crop_2d = np.reshape(image_crop, [1, IMAGE_SIZE])
 
                 # get enhanced image
 
                 enhanced_2d = sess.run(enhanced, feed_dict={x_: image_crop_2d})
-                enhanced_image = np.reshape(enhanced_2d, [high, wid, 3])
-                enhanced_image = enhanced_image[:,:,0]
-                enhanced_image = enhanced_image*255
-                enhanced_image = normal(enhanced_image)
-                enhanced_image = norpro.denomal(enhanced_image)
-                print(np.max(enhanced_image))
-                print(np.min(enhanced_image))
-                # image = image[:,:,0]
-                # before_after = np.hstack((image, enhanced_image))
+                enhanced_image = np.reshape(enhanced_2d, [IMAGE_HEIGHT, IMAGE_WIDTH, 3])
+
+                before_after = np.hstack((image_crop, enhanced_image))
                 photo_name = photo.rsplit(".", 1)[0]
-                enhanced_image = np.uint8(enhanced_image)
-                print(np.max(enhanced_image))
-                img.PixelData = enhanced_image.tobytes()
-                img.save_as("visual_results/"+ photo_name + "_enhanced.dcm")
 
                 # save the results as .png images
-                # print(np.max(image))
 
-                # misc.imsave("visual_results/"+ photo_name + "_enhanced.png", enhanced_image)
-                # misc.imsave("visual_results/"+ photo_name + "_before_after.png", before_after)
+                misc.imsave("visual_results/"+ photo_name + "_enhanced.png", enhanced_image)
+                misc.imsave("visual_results/"+ photo_name + "_before_after.png", before_after)
 time_end = time.time()
 print("the whole time is ",time_end-time_start,"s")
-

@@ -4,7 +4,7 @@ import tensorflow as tf
 from scipy import misc
 import numpy as np
 import sys
-
+import cv2
 from load_dataset import load_test_data, load_batch
 from ssim import MultiScaleSSIM
 import models
@@ -221,7 +221,8 @@ with tf.Graph().as_default(), tf.Session() as sess:
             idx = 0
             for crop in enhanced_crops:
                 before_after = np.hstack((np.reshape(test_crops[idx], [PATCH_HEIGHT, PATCH_WIDTH, 3]), crop))
-                misc.imsave('results/' + str(phone)+ "_" + str(idx) + '_iteration_' + str(i) + '.jpg', before_after)
+                cv2.imwrite('results/' + str(phone)+ "_" + str(idx) + '_iteration_' + str(i) + '.jpg', before_after,\
+                        [int(cv2.IMWRITE_JPEG_QUALITY),100])
                 idx += 1
 
             train_loss_gen = 0.0

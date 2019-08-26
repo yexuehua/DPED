@@ -33,7 +33,7 @@ def process_command_args(arguments):
 
     # specifying default parameters
 
-    batch_size = 50
+    batch_size = 32
     train_size = 30000
     learning_rate = 5e-4
     num_train_iters = 20000
@@ -47,7 +47,7 @@ def process_command_args(arguments):
     vgg_dir = 'vgg_pretrained/imagenet-vgg-verydeep-19.mat'
     eval_step = 1000
 
-    phone = ""
+    phone = "blackberry"
 
     for args in arguments:
 
@@ -125,10 +125,10 @@ def process_command_args(arguments):
 
 def process_test_model_args(arguments):
 
-    phone = ""
+    phone = "iphone"
     dped_dir = 'dped/'
-    test_subset = "small"
-    iteration = "all"
+    test_subset = "full"
+    iteration = "19000"
     resolution = "orig"
     use_gpu = "true"
 
@@ -165,7 +165,7 @@ def get_resolutions():
 
     res_sizes = {}
 
-    res_sizes["iphone"] = [1536, 2048]
+    res_sizes["iphone"] = [512, 512]
     res_sizes["iphone_orig"] = [1536, 2048]
     res_sizes["blackberry"] = [1560, 2080]
     res_sizes["blackberry_orig"] = [1560, 2080]
