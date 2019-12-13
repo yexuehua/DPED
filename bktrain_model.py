@@ -12,8 +12,8 @@ import utils
 import vgg
 from tqdm import tqdm
 
-dataset = r'D:\python\DPED-master\niidata\head_wire_dataset\npz_data\2nd\low_quality_all.npz'
-ground_truth = r'D:\python\DPED-master\niidata\head_wire_dataset\npz_data\2nd\ground_truth_all.npz'
+dataset = r'D:\python\DPED-master\niidata\head_wire_dataset\npz_data\youyi_magic\all_low.npz'
+ground_truth = r'D:\python\DPED-master\niidata\head_wire_dataset\npz_data\youyi_magic\all_high.npz'
 # defining size of the training image patches
 
 PATCH_WIDTH = 100
@@ -241,6 +241,6 @@ with tf.Graph().as_default(), tf.Session() as sess:
 
             # save the model that corresponds to the current iteration
 
-            saver.save(sess, 'models/' + str(phone) + '_iteration_' + str(i) + '.ckpt', write_meta_graph=False)
+            saver.save(sess, 'models/head_wire_magic_10patient/iteration20000_model_changed/' + 'iteration_' + str(i) + '.ckpt', write_meta_graph=False)
 
 

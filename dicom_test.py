@@ -5,6 +5,7 @@ import os
 import time
 import pydicom
 from tqdm import tqdm
+from scipy import misc
 
 batch_size = 32
 
@@ -39,15 +40,18 @@ enhanced = resnet(x_imge)
 
 with tf.Session() as sess:
     saver = tf.train.Saver()
-    saver.restore(sess,"models/blackberry_iteration_7000.ckpt")
+    saver.restore(sess,"models/head_wire_magic_10patient/iteration_3000.ckpt")
     # data process
     norpro = nomalprocess()
-    test_dir = "dicom_data/"
-    test_photos = [f for f in os.listdir(test_dir) if os.path.isfile(test_dir + f)]
-
+    test_dir = r"D:\python\DPED-master\dicom_data\youyi_dicomB"
+    #test_photos = [f for f in os.listdir(test_dir) if os.path.isfile(test_dir + f)]
+    test_photos = os.listdir(test_dir)
     for photo in tqdm(test_photos):
-        img = pydicom.read_file(test_dir+photo)
+        file_path = os.path.join(test_dir,photo)
+        img = pydicom.read_file(file_path)
         imge = img.pixel_array
+        imge = misc.imresize(imge,(512,512))
+        imge_interp = imge
         imge = norpro.normal(imge)
         # print(np.min(imge))
         imge = np.expand_dims(imge, axis=2)
@@ -72,6 +76,7 @@ with tf.Session() as sess:
         enhanced_image = np.reshape(enhanced_2d, [high, wid, 3])
         enhanced_image = enhanced_image[:,:,0]
         enhanced_image = enhanced_image*255
+        #enhanced_image = misc.imresize(enhanced_image,(high*2,wid*2))
         enhanced_image = normal(enhanced_image)
         enhanced_image = norpro.denomal(enhanced_image)
         # print(np.max(enhanced_image))
@@ -80,9 +85,20 @@ with tf.Session() as sess:
         # before_after = np.hstack((image, enhanced_image))
         enhanced_image = np.int16(enhanced_image)
         img.PixelData = enhanced_image.tobytes()
-        if photo[-4:] == ".dcm" or photo[-6:] == ".dicom":
-            photo = photo[0:-4]
-        img.save_as("dicom_output/"+ "enhanced_" +photo+ ".dcm")
+        img.Rows,img.Columns = enhanced_image.shape
+        pixel_spacing = img.PixelSpacing
+        ps1 = float(pixel_spacing[0])/2
+        ps2 = float(pixel_spacing[1])/2
+        pixel_spacing = [str(ps1),str(ps2)]
+        img.PixelSpacing = pixel_spacing
+        #if photo[-4:] == ".dcm" or photo[-6:] == ".dicom":
+        #   photo = photo[0:-4]
+        img.save_as("dicom_output/dicomB_10p/5000iter_full512/acc4_"+ "enhanced_" +photo+ ".dcm")
+
+        imge_interp = np.int16(imge_interp)
+        img.PixelData = imge_interp.tobytes()
+        img.save_as("dicom_output/dicomB_10p/5000iter_full512/acc4_"+ "interporate_" +photo+ ".dcm")
+
     print('process finished!')
 endtime = time.time()
 print("the whole time is %f" %(endtime-strat_time))

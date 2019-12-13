@@ -59,6 +59,8 @@ def load_data(dataset,ground_truth,test_rate):
     train_groud = original[test_size:-1,:]
     print(train_groud.shape)
     print(test_groud.shape)
+    print(train_groud.dtype)
+    print(train_data.dtype)
 
     return test_data, test_groud, train_data, train_groud
 

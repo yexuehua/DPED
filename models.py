@@ -9,18 +9,18 @@ def resnet(input_image):
 
         # residual 1
 
-        W2 = weight_variable([3, 3, 64, 64], name="W2"); b2 = bias_variable([64], name="b2");
+        W2 = weight_variable([3, 3, 64, 128], name="W2"); b2 = bias_variable([128], name="b2");
         c2 = tf.nn.relu(_instance_norm(conv2d(c1, W2) + b2))
 
-        W3 = weight_variable([3, 3, 64, 64], name="W3"); b3 = bias_variable([64], name="b3");
+        W3 = weight_variable([3, 3, 128, 64], name="W3"); b3 = bias_variable([64], name="b3");
         c3 = tf.nn.relu(_instance_norm(conv2d(c2, W3) + b3)) + c1
 
         # residual 2
 
-        W4 = weight_variable([3, 3, 64, 64], name="W4"); b4 = bias_variable([64], name="b4");
+        W4 = weight_variable([3, 3, 64, 128], name="W4"); b4 = bias_variable([128], name="b4");
         c4 = tf.nn.relu(_instance_norm(conv2d(c3, W4) + b4))
 
-        W5 = weight_variable([3, 3, 64, 64], name="W5"); b5 = bias_variable([64], name="b5");
+        W5 = weight_variable([3, 3, 128, 64], name="W5"); b5 = bias_variable([64], name="b5");
         c5 = tf.nn.relu(_instance_norm(conv2d(c4, W5) + b5)) + c3
 
         # residual 3
